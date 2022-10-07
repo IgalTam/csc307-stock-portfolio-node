@@ -42,3 +42,29 @@ test('Declare shares', () => {
     const result = portfol.getShares("GME");
     expect(target).toBe(result);
 });
+
+test('Shareless tickers 1', () => {
+    portfol.addTicker("GME", 0);
+    const result = portfol.checkTicker("GME");
+    expect(result).toBeFalsy();
+});
+
+test('Shareless tickers 2', () => {
+    portfol.addTicker("GME", 5);
+    portfol.makeSale("GME", 5);
+    const result = portfol.checkTicker("GME");
+    expect(result).toBeFalsy();
+});
+
+test('Overselling shares', () => {
+    portfol.addTicker("GME", 5);
+    expect( () => {
+        portfol.makeSale("GME", 6);
+    }).toThrowError(/ShareSaleException/);
+});
+
+test('Making sale with nonexistent ticker', () => {
+    expect( () => {
+        portfol.makeSale("GME", 6);
+    }).toThrowError(/UndefinedTickerException/);
+});

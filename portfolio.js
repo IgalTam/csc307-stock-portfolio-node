@@ -5,10 +5,10 @@ app.use(express.json())
 
 
 exports.initPortfolio = function initPortfolio () {
-    return new portfolio();
+    return new Portfolio();
 }
 
-class portfolio {
+class Portfolio {
     portfl_lst;
     constructor() {
         this.portfl_lst = [];
@@ -25,21 +25,31 @@ class portfolio {
     }
 
     addTicker(tickerName, shares) {
-        this.portfl_lst.push({"tickerName": tickerName, "tickerCount": shares});
+        const tickerObj = {"tickerName": tickerName, "tickerCount": shares};
+        this.portfl_lst.push(tickerObj);
+        if(tickerObj.tickerCount === 0)
+            this.clearEmptyTicker(tickerObj);
     }
 
     makePurchase(tickername, shares) {
-        if(tickername === undefined)
-            this.addTicker(tickername, tickerCount);
+        if(tickername === undefined) {
+            this.addTicker(tickername, shares);
+        }
         else
             this.getTicker(tickername).tickerCount += shares;
     }
 
     makeSale(tickername, shares) {
-        if(tickername === undefined)
-            this.addTicker(tickername, tickerCount);
-        else
-            this.getTicker(tickername).tickerCount -= shares;
+        if(this.checkTicker(tickername) === false)
+            throw new Error("UndefinedTickerException");
+        else {
+            const tickerObj = this.getTicker(tickername);
+            if(tickerObj.tickerCount < shares)
+                throw new Error("ShareSaleException");
+            tickerObj.tickerCount -= shares;
+            if(tickerObj.tickerCount === 0)
+                this.clearEmptyTicker(tickerObj);
+        }
     }
 
     getTicker(tickerName) {
@@ -48,5 +58,15 @@ class portfolio {
 
     getShares(tickerName) {
         return this.portfl_lst.find(element => element.tickerName === tickerName).tickerCount;
+    }
+
+    checkTicker(tickerName) {
+        if(this.portfl_lst.find(element => element.tickerName === tickerName) === undefined)
+            return false;
+        return true;
+    }
+
+    clearEmptyTicker(tickerObj) {
+        this.portfl_lst.splice(this.portfl_lst.indexOf(tickerObj), 1);
     }
 }
