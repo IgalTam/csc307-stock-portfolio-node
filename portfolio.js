@@ -1,9 +1,3 @@
-const express = require('express');
-const app = express();
-
-app.use(express.json())
-
-
 exports.initPortfolio = function initPortfolio () {
     return new Portfolio();
 }
